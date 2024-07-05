@@ -10,7 +10,7 @@
 <h2>고정 확장자</h2>
 <div id="fixedExtensions">
     <div th:each="ext : ${fixedExtensions}">
-        <input type="checkbox" th:id="${ext.name}" th:checked="${true}">
+        <input type="checkbox" th:id="${ext.name}" th:checked="${ext.checked}" onchange="toggleFixed(this)">
         <label th:for="${ext.name}" th:text="${ext.name}"></label>
     </div>
 </div>
@@ -31,13 +31,52 @@
 <button onclick="uploadFile()">업로드</button>
 
 <h2>업로드된 파일 목록</h2>
-<ul id="uploadedFiles"></ul>
+<ul id="uploadedFiles">
+    <li th:each="file : ${uploadedFiles}">
+        <span th:text="${file.name}"></span>
+        <button th:onclick="deleteFile([[${file.id}]])">X</button>
+    </li>
+</ul>
 
-<script>
+<script th:inline="javascript">
+    var uploadedExtensions = new Set();
+
+    function updateUploadedExtensions() {
+        uploadedExtensions.clear();
+        /*[# th:each="file : ${uploadedFiles}"]*/
+        var fileName = /*[[${file.name}]]*/ '';
+        var extension = fileName.split('.').pop().toLowerCase();
+        uploadedExtensions.add(extension);
+        /*[/]*/
+    }
+
+    function isExtensionUploaded(extension) {
+        return uploadedExtensions.has(extension);
+    }
+
+    function toggleFixed(checkbox) {
+        $.ajax({
+            url: '/api/extensions/fixed',
+            type: 'POST',
+            data: {name: checkbox.id, checked: checkbox.checked},
+            success: function() {
+                // 성공 시 처리
+            },
+            error: function(response) {
+                alert(response.responseText);
+                checkbox.checked = !checkbox.checked;
+            }
+        });
+    }
+
     function addCustom() {
         var extension = $('#customExtension').val().toLowerCase();
         if (!isValidExtension(extension)) {
             alert("확장자는 1자 이상의 영문자나 숫자로만 구성되어야 합니다.");
+            return;
+        }
+        if (isExtensionUploaded(extension)) {
+            alert("이미 등록된 파일입니다.");
             return;
         }
         $.ajax({
@@ -51,10 +90,6 @@
                 alert(response.responseText);
             }
         });
-    }
-
-    function isValidExtension(name) {
-        return /^[a-z0-9]+$/.test(name);
     }
 
     function deleteCustom(name) {
@@ -72,19 +107,38 @@
     }
 
     function uploadFile() {
-        var file = $('#fileUpload')[0].files[0];
+        var fileInput = $('#fileUpload')[0];
+        if (fileInput.files.length === 0) {
+            alert("업로드 전 파일을 올린 다음 버튼을 눌러주세요");
+            return;
+        }
+
+        var file = fileInput.files[0];
         var formData = new FormData();
         formData.append('file', file);
 
         $.ajax({
-            url: '/api/extensions/upload',
+            url: '/api/files/upload',
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
             success: function(response) {
                 alert(response);
-                updateUploadedFilesList();
+                location.reload();
+            },
+            error: function(xhr, status, error) {
+                alert(xhr.responseText || "파일 업로드 중 오류가 발생했습니다.");
+            }
+        });
+    }
+
+    function deleteFile(id) {
+        $.ajax({
+            url: '/api/files/' + id,
+            type: 'DELETE',
+            success: function() {
+                location.reload();
             },
             error: function(response) {
                 alert(response.responseText);
@@ -92,18 +146,12 @@
         });
     }
 
-    function updateUploadedFilesList() {
-        $.get('/api/extensions/uploaded', function(files) {
-            var list = $('#uploadedFiles');
-            list.empty();
-            files.forEach(function(file) {
-                list.append('<li>' + file + '</li>');
-            });
-        });
+    function isValidExtension(name) {
+        return /^[a-z0-9]+$/.test(name);
     }
 
     $(document).ready(function() {
-        updateUploadedFilesList();
+        updateUploadedExtensions();
     });
 </script>
 </body>
