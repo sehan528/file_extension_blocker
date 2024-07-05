@@ -1,9 +1,23 @@
 spring:
+    application:
+        name: file_extension_blocker
+
     datasource:
         url: jdbc:mysql://localhost:3306/file_extension_blocker
         username: root
         password: root1234
-jpa:
-    hibernate:
-        ddl-auto: update
-    show-sql: true
+        driver-class-name: com.mysql.cj.jdbc.Driver
+
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                format_sql: true
+#                show_sql: true  # spring.jpa.show-sql 대신 여기에 설정
+
+logging:
+    level:
+        org:
+            hibernate:
+                SQL: DEBUG

@@ -5,12 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Entity
 @Table(name = "blocked_extensions")
-@Getter
-@Setter
-@NoArgsConstructor
+@Getter @Setter @NoArgsConstructor
 public class BlockedExtension {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,8 +16,11 @@ public class BlockedExtension {
     @Column(nullable = false, unique = true, length = 20)
     private String name;
 
-    @Column(nullable = false, name = "is_fixed_extension")
+    @Column(nullable = false)
     private boolean isFixedExtension;
 
-
+    public BlockedExtension(String name, boolean isFixedExtension) {
+        this.name = name;
+        this.isFixedExtension = isFixedExtension;
+    }
 }

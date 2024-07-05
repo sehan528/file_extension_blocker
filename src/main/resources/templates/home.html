@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>File Extension Blocker</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1>파일 확장자 차단</h1>
+
+<h2>고정 확장자</h2>
+<div id="fixedExtensions">
+    <div th:each="ext : ${fixedExtensions}">
+        <input type="checkbox" th:id="${ext.name}" th:checked="${true}">
+        <label th:for="${ext.name}" th:text="${ext.name}"></label>
+    </div>
+</div>
+
+<h2>커스텀 확장자</h2>
+<input type="text" id="customExtension" maxlength="20">
+<button onclick="addCustom()">추가</button>
+
+<ul id="customList">
+    <li th:each="ext : ${customExtensions}">
+        <span th:text="${ext.name}"></span>
+        <button th:onclick="deleteCustom([[${ext.name}]])">X</button>
+    </li>
+</ul>
+
+<h2>파일 업로드</h2>
+<input type="file" id="fileUpload">
+<button onclick="uploadFile()">업로드</button>
+
+<h2>업로드된 파일 목록</h2>
+<ul id="uploadedFiles"></ul>
+
+<script>
+    function addCustom() {
+        var extension = $('#customExtension').val();
+        $.ajax({
+            url: '/api/extensions/custom',
+            type: 'POST',
+            data: {name: extension},
+            success: function() {
+                location.reload();
+            },
+            error: function(response) {
+                alert(response.responseText);
+            }
+        });
+    }
+
+    function deleteCustom(name) {
+        $.ajax({
+            url: '/api/extensions/custom',
+            type: 'DELETE',
+            data: {name: name},
+            success: function() {
+                location.reload();
+            },
+            error: function(response) {
+                alert(response.responseText);
+            }
+        });
+    }
+
+    function uploadFile() {
+        var file = $('#fileUpload')[0].files[0];
+        var formData = new FormData();
+        formData.append('file', file);
+
+        $.ajax({
+            url: '/api/extensions/upload',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                alert(response);
+                updateUploadedFilesList();
+            },
+            error: function(response) {
+                alert(response.responseText);
+            }
+        });
+    }
+
+    function updateUploadedFilesList() {
+        $.get('/api/extensions/uploaded', function(files) {
+            var list = $('#uploadedFiles');
+            list.empty();
+            files.forEach(function(file) {
+                list.append('<li>' + file + '</li>');
+            });
+        });
+    }
+
+    $(document).ready(function() {
+        updateUploadedFilesList();
+    });
+</script>
+</body>
+</html>
