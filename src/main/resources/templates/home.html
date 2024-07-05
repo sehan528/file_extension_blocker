@@ -35,7 +35,11 @@
 
 <script>
     function addCustom() {
-        var extension = $('#customExtension').val();
+        var extension = $('#customExtension').val().toLowerCase();
+        if (!isValidExtension(extension)) {
+            alert("확장자는 1자 이상의 영문자나 숫자로만 구성되어야 합니다.");
+            return;
+        }
         $.ajax({
             url: '/api/extensions/custom',
             type: 'POST',
@@ -47,6 +51,10 @@
                 alert(response.responseText);
             }
         });
+    }
+
+    function isValidExtension(name) {
+        return /^[a-z0-9]+$/.test(name);
     }
 
     function deleteCustom(name) {

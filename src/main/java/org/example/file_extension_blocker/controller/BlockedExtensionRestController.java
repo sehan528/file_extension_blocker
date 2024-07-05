@@ -20,10 +20,10 @@ public class BlockedExtensionRestController {
     public ResponseEntity<?> addCustomExtension(@RequestParam String name) {
         try {
             service.addCustomExtension(name);
-            log.info("성공. 커스텀 확장자 {} 등록", name);
+            log.info("커스텀 확장자 등록 성공: {}", name);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException | IllegalStateException e) {
-            log.error("실패. 커스텀 확장자 {} 등록", name, e);
+            log.error("커스텀 확장자 등록 실패: {}, 사유: {}", name, e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
