@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 @RequiredArgsConstructor
 public class BlockedExtensionController {
-    private final BlockedExtensionService Blockedservice;
+    private final BlockedExtensionService blockedService;
     private final FileService fileService;
 
     @GetMapping("/")
     public String home(Model model) {
-        model.addAttribute("fixedExtensions", Blockedservice.getFixedExtensions());
-        model.addAttribute("customExtensions", Blockedservice.getCustomExtensions());
+        model.addAttribute("fixedExtensions", blockedService.getFixedExtensions());
+        model.addAttribute("customExtensions", blockedService.getCustomExtensions());
         model.addAttribute("uploadedFiles", fileService.getAllFiles());
         return "home";
     }

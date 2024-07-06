@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface FileRepository extends JpaRepository<File, Long> {
     Optional<File> findByName(String name);
+
     boolean existsByName(String name);
 }

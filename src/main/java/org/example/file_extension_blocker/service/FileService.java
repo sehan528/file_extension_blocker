@@ -1,11 +1,14 @@
 package org.example.file_extension_blocker.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.file_extension_blocker.dto.BlockedExtensionDTO;
+import org.example.file_extension_blocker.dto.FileDTO;
 import org.example.file_extension_blocker.model.File;
 import org.example.file_extension_blocker.repository.FileRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -15,29 +18,40 @@ public class FileService {
     private final BlockedExtensionService blockedExtensionService;
 
     @Transactional(readOnly = true)
-    public List<File> getAllFiles() {
-        return fileRepository.findAll();
+    public List<FileDTO> getAllFiles() {
+        List<File> files = fileRepository.findAll();
+        List<FileDTO> fileDTOs = new ArrayList<>();
+        for (File file : files) {
+            fileDTOs.add(convertToDTO(file));
+        }
+        return fileDTOs;
     }
 
     @Transactional
-    public void addFile(String fileName) {
-        if (fileRepository.existsByName(fileName)) {
-            throw new IllegalArgumentException("이미 등록된 파일입니다: " + fileName);
+    public void addFile(FileDTO fileDTO) {
+        if (fileRepository.existsByName(fileDTO.getName())) {
+            throw new IllegalArgumentException("이미 등록된 파일입니다: " + fileDTO.getName());
         }
-        String extension = getFileExtension(fileName);
-        if (blockedExtensionService.isExtensionBlocked(extension)) {
+        String extension = getFileExtension(fileDTO.getName());
+        BlockedExtensionDTO blockedExtensionDTO = new BlockedExtensionDTO();
+        blockedExtensionDTO.setName(extension);
+        if (blockedExtensionService.isExtensionBlocked(blockedExtensionDTO)) {
             throw new IllegalArgumentException("차단된 확장자 파일입니다: " + extension);
         }
-        fileRepository.save(new File(fileName));
+        File file = File.builder()
+                .name(fileDTO.getName())
+                .build();
+        fileRepository.save(file);
     }
 
     @Transactional
-    public void deleteFile(Long id) {
-        File file = fileRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 {} 를 가진 파일을 찾을 수 없습니다.: " + id));
+    public void deleteFile(FileDTO fileDTO) {
+        File file = fileRepository.findById(fileDTO.getId())
+                .orElseThrow(() -> new IllegalArgumentException("File not found with id: " + fileDTO.getId()));
         fileRepository.delete(file);
     }
 
+    @Transactional(readOnly = true)
     public boolean isExtensionUsed(String extension) {
         List<File> allFiles = fileRepository.findAll();
         for (File file : allFiles) {
@@ -57,5 +71,10 @@ public class FileService {
         return fileName.substring(lastIndexOf + 1).toLowerCase();
     }
 
-
+    private FileDTO convertToDTO(File file) {
+        return FileDTO.builder()
+                .id(file.getId())
+                .name(file.getName())
+                .build();
+    }
 }

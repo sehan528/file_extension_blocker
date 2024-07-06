@@ -82,11 +82,16 @@
                 return;
             }
 
-            // 파일 사용 여부 확인 후 toggleFixed 실행
+            var dto = {
+                name: extension,
+                checked: checkbox.checked
+            };
+
             $.ajax({
                 url: '/api/extensions/fixed',
                 type: 'POST',
-                data: {name: extension, checked: checkbox.checked},
+                contentType: 'application/json',
+                data: JSON.stringify(dto),
                 success: function() {
                     console.log('확장자 ' + extension + '이(가) ' + (checkbox.checked ? '차단' : '해제') + '되었습니다.');
                 },
@@ -112,10 +117,16 @@
             alert("해당 확장자는 이미 사용 중입니다. 확인 후 다시 시도해주세요.");
             return;
         }
+
+        var dto = {
+            name: extension
+        };
+
         $.ajax({
             url: '/api/extensions/custom',
             type: 'POST',
-            data: {name: extension},
+            contentType: 'application/json',
+            data: JSON.stringify(dto),
             success: function() {
                 location.reload();
             },
@@ -126,10 +137,15 @@
     }
 
     function deleteCustom(name) {
+        var dto = {
+            name: name
+        };
+
         $.ajax({
             url: '/api/extensions/custom',
             type: 'DELETE',
-            data: {name: name},
+            contentType: 'application/json',
+            data: JSON.stringify(dto),
             success: function() {
                 location.reload();
             },
@@ -178,10 +194,6 @@
             }
         });
     }
-
-
-
-
 </script>
 </body>
 </html>
