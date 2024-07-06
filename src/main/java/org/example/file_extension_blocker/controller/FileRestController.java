@@ -24,11 +24,10 @@ public class FileRestController {
 
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
+        String fileName = file.getOriginalFilename();
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("파일 등록 후 다시 시도해주세요");
         }
-
-        String fileName = file.getOriginalFilename();
         try {
             fileService.addFile(fileName);
             return ResponseEntity.ok().body("파일 업로드 성공: " + fileName);
@@ -45,5 +44,11 @@ public class FileRestController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/usage")
+    public ResponseEntity<Boolean> checkExtensionUsage(@RequestParam String extension) {
+        boolean isUsed = fileService.isExtensionUsed(extension);
+        return ResponseEntity.ok(isUsed);
     }
 }

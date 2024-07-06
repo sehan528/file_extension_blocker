@@ -34,8 +34,19 @@ public class FileService {
     @Transactional
     public void deleteFile(Long id) {
         File file = fileRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("File not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("해당 {} 를 가진 파일을 찾을 수 없습니다.: " + id));
         fileRepository.delete(file);
+    }
+
+    public boolean isExtensionUsed(String extension) {
+        List<File> allFiles = fileRepository.findAll();
+        for (File file : allFiles) {
+            String fileExtension = getFileExtension(file.getName());
+            if (fileExtension.equalsIgnoreCase(extension)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String getFileExtension(String fileName) {
@@ -45,4 +56,6 @@ public class FileService {
         }
         return fileName.substring(lastIndexOf + 1).toLowerCase();
     }
+
+
 }

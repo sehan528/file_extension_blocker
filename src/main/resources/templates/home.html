@@ -41,6 +41,10 @@
 <script th:inline="javascript">
     var uploadedExtensions = new Set();
 
+    $(document).ready(function() {
+        updateUploadedExtensions();
+    });
+
     function updateUploadedExtensions() {
         uploadedExtensions.clear();
         /*[# th:each="file : ${uploadedFiles}"]*/
@@ -54,29 +58,58 @@
         return uploadedExtensions.has(extension);
     }
 
-    function toggleFixed(checkbox) {
+    function checkExtensionUsage(extension, callback) {
         $.ajax({
-            url: '/api/extensions/fixed',
-            type: 'POST',
-            data: {name: checkbox.id, checked: checkbox.checked},
-            success: function() {
-                // 성공 시 처리
+            url: '/api/files/usage',
+            type: 'GET',
+            data: { extension: extension },
+            success: function(response) {
+                callback(response);
             },
-            error: function(response) {
-                alert(response.responseText);
-                checkbox.checked = !checkbox.checked;
+            error: function() {
+                alert("확장자 사용 여부 확인 중 오류가 발생했습니다.");
             }
         });
     }
 
+    function toggleFixed(checkbox) {
+        const extension = checkbox.id;
+
+        checkExtensionUsage(extension, function(isUsed) {
+            if (checkbox.checked && isUsed) {
+                alert("해당 확장자는 이미 사용 중입니다. 확인 후 다시 시도해주세요.");
+                checkbox.checked = false;
+                return;
+            }
+
+            // 파일 사용 여부 확인 후 toggleFixed 실행
+            $.ajax({
+                url: '/api/extensions/fixed',
+                type: 'POST',
+                data: {name: extension, checked: checkbox.checked},
+                success: function() {
+                    console.log('확장자 ' + extension + '이(가) ' + (checkbox.checked ? '차단' : '해제') + '되었습니다.');
+                },
+                error: function(response) {
+                    alert(response.responseText);
+                    checkbox.checked = !checkbox.checked;
+                }
+            });
+        });
+    }
+
+    function isValidExtension(name) {
+        return /^[a-z0-9]+$/.test(name);
+    }
+
     function addCustom() {
-        var extension = $('#customExtension').val().toLowerCase();
+        let extension = $('#customExtension').val().toLowerCase();
         if (!isValidExtension(extension)) {
             alert("확장자는 1자 이상의 영문자나 숫자로만 구성되어야 합니다.");
             return;
         }
         if (isExtensionUploaded(extension)) {
-            alert("이미 등록된 파일입니다.");
+            alert("해당 확장자는 이미 사용 중입니다. 확인 후 다시 시도해주세요.");
             return;
         }
         $.ajax({
@@ -107,14 +140,14 @@
     }
 
     function uploadFile() {
-        var fileInput = $('#fileUpload')[0];
+        const fileInput = $('#fileUpload')[0];
         if (fileInput.files.length === 0) {
             alert("업로드 전 파일을 올린 다음 버튼을 눌러주세요");
             return;
         }
 
-        var file = fileInput.files[0];
-        var formData = new FormData();
+        const file = fileInput.files[0];
+        const formData = new FormData();
         formData.append('file', file);
 
         $.ajax({
@@ -146,13 +179,9 @@
         });
     }
 
-    function isValidExtension(name) {
-        return /^[a-z0-9]+$/.test(name);
-    }
 
-    $(document).ready(function() {
-        updateUploadedExtensions();
-    });
+
+
 </script>
 </body>
 </html>

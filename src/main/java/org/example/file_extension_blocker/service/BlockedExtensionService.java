@@ -7,10 +7,8 @@ import org.example.file_extension_blocker.repository.BlockedExtensionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,9 +26,10 @@ public class BlockedExtensionService {
     }
 
     @Transactional
-    public void toggleFixedExtension(String name, boolean checked) {
-        BlockedExtension extension = repository.findByName(name.toLowerCase())
-                .orElseGet(() -> new BlockedExtension(name.toLowerCase(), true, false));
+    public void toggleFixedExtension(String name, boolean checked) throws IllegalStateException {
+        BlockedExtension extension = repository.findByName(name)
+                .orElseThrow(() -> new IllegalArgumentException("Extension not found: " + name));
+
         extension.setChecked(checked);
         repository.save(extension);
     }
@@ -65,34 +64,4 @@ public class BlockedExtensionService {
         Optional<BlockedExtension> blockedExtension = repository.findByName(extension.toLowerCase());
         return blockedExtension.map(BlockedExtension::isChecked).orElse(false);
     }
-
-//    ---
-//    private List<String> uploadedFiles = new ArrayList<>();
-//    private boolean isValidExtension(String name) {
-//        return name.matches("^[a-z0-9]+$");
-//    }
-//
-//    private String sanitizeInput(String input) {
-//        // 여기서는 간단한 이스케이프 처리만 수행합니다.
-//        // 실제 환경에서는 더 강력한 라이브러리(예: OWASP Java Encoder)를 사용하는 것이 좋습니다.
-//        return input.replaceAll("[<>&'\"]", "");
-//    }
-//
-//    private boolean isFixedExtension(String name) {
-//        return repository.findByName(name)
-//                .map(BlockedExtension::isFixedExtension)
-//                .orElse(false);
-//    }
-//
-//    public boolean isFileAlreadyUploaded(String fileName) {
-//        return uploadedFiles.contains(fileName);
-//    }
-//
-//    public void addUploadedFile(String fileName) {
-//        uploadedFiles.add(fileName);
-//    }
-//
-//    public List<String> getUploadedFiles() {
-//        return new ArrayList<>(uploadedFiles);
-//    }
 }
