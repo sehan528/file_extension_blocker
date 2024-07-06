@@ -1,11 +1,15 @@
 # File Extension Blocker
 
+### Flow 서버 개발자 과제 - 장세창
 
+<br>
 
 ## 프로젝트 소개
-File Extension Blocker는 특정 파일 확장자를 차단하여 시스템 보안을 강화하는 웹 애플리케이션입니다. 사용자는 고정 확장자와 커스텀 확장자를 관리하고, 파일 업로드 시 차단된 확장자를 필터링할 수 있습니다.
+어떤 파일들은 첨부시 보안에 문제가 될 수 있습니다. 특히 exe, sh 등의 실행파일이 존재할 경우 서버에 올려서 실행이 될 수 있는 위험이 있어 파일 확장자 차단을 하게 되었습니다.<br>
+File Extension Blocker는 고정 확장자와 커스텀 확장자를 지정하여 확장자 관리 및 차단 기능을 지원하는 웹 입니다.
  
 
+<br>
 
 ## 주요 기능
 - 고정 확장자 관리: 미리 정의된 확장자 목록을 토글하여 차단/허용
@@ -13,6 +17,7 @@ File Extension Blocker는 특정 파일 확장자를 차단하여 시스템 보�
 - 파일 업로드: 차단되지 않은 확장자를 가진 파일만 업로드 하여 확장자 차단 테스트
 
 
+<br>
 
 ## 기술 스택
 - Backend: Spring Boot, Java
@@ -23,6 +28,7 @@ File Extension Blocker는 특정 파일 확장자를 차단하여 시스템 보�
 - Build Tool: Gradle
 
 
+<br>
 
 ## 추가 고려사항
 1. 파일 업로드 안전성 강화
@@ -50,13 +56,16 @@ File Extension Blocker는 특정 파일 확장자를 차단하여 시스템 보�
     - 단위 테스트를 통해 시스템의 안정성과 유지보수성 향상
 
 
+<br>
 
 ## 화면 구성 
 ![image](https://github.com/sehan528/file_extension_blocker/assets/71550827/b9fc28c2-9b6b-4d0c-a34b-90b4fbb19301)
 
+<br>
 
 ## ERD
 ![image](https://github.com/sehan528/file_extension_blocker/assets/71550827/10ba7240-7168-4d4a-9f7b-53e955210c94)
 
 
+<br><br>
 
