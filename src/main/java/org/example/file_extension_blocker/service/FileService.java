@@ -47,7 +47,7 @@ public class FileService {
     @Transactional
     public void deleteFile(FileDTO fileDTO) {
         File file = fileRepository.findById(fileDTO.getId())
-                .orElseThrow(() -> new IllegalArgumentException("File not found with id: " + fileDTO.getId()));
+                .orElseThrow(() -> new IllegalArgumentException("해당 파일을 찾을 수 없습니다.: " + fileDTO.getId()));
         fileRepository.delete(file);
     }
 

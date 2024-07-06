@@ -24,11 +24,4 @@ public class BlockedExtension {
     @Column(nullable = false)
     private boolean isChecked;
 
-//    public BlockedExtension(String name, boolean isFixedExtension, boolean isChecked) {
-//        this.name = name;
-//        this.isFixedExtension = isFixedExtension;
-//        this.isChecked = isChecked;
-//    }
-
-
 }

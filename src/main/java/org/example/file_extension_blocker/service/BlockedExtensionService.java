@@ -16,29 +16,9 @@ public class BlockedExtensionService {
     private final BlockedExtensionRepository repository;
 
     @Transactional(readOnly = true)
-//    public List<BlockedExtensionDTO> getFixedExtensions() {
-//        List<BlockedExtension> fixedExtensions = repository.findByIsFixedExtension(true);
-//        List<BlockedExtensionDTO> dtoList = new ArrayList<>();
-//        for (BlockedExtension extension : fixedExtensions) {
-//            dtoList.add(convertToDTO(extension));
-//        }
-//        return dtoList;
-//    }
-
     public List<BlockedExtension> getFixedExtensions() {
         return repository.findByIsFixedExtension(true);
     }
-
-
-//    @Transactional(readOnly = true)
-//    public List<BlockedExtensionDTO> getCustomExtensions() {
-//        List<BlockedExtension> customExtensions = repository.findByIsFixedExtension(false);
-//        List<BlockedExtensionDTO> dtoList = new ArrayList<>();
-//        for (BlockedExtension extension : customExtensions) {
-//            dtoList.add(convertToDTO(extension));
-//        }
-//        return dtoList;
-//    }
 
     @Transactional(readOnly = true)
     public List<BlockedExtension> getCustomExtensions() {
@@ -48,7 +28,7 @@ public class BlockedExtensionService {
     @Transactional
     public void toggleFixedExtension(BlockedExtensionDTO dto) {
         BlockedExtension extension = repository.findByName(dto.getName())
-                .orElseThrow(() -> new IllegalArgumentException("Extension not found: " + dto.getName()));
+                .orElseThrow(() -> new IllegalArgumentException("다음 확장자를 찾을 수 없습니다: " + dto.getName()));
 
         BlockedExtension updatedExtension = BlockedExtension.builder()
                 .id(extension.getId())
@@ -63,7 +43,7 @@ public class BlockedExtensionService {
     @Transactional
     public void addCustomExtension(BlockedExtensionDTO dto) {
         if (repository.existsByName(dto.getName())) {
-            throw new IllegalArgumentException("Extension already exists: " + dto.getName());
+            throw new IllegalArgumentException("해당 확장자는 이미 등록되었습니다.: " + dto.getName());
         }
 
         if (dto.getName().length() > 20) {
@@ -88,9 +68,9 @@ public class BlockedExtensionService {
     @Transactional
     public void deleteCustomExtension(BlockedExtensionDTO dto) {
         BlockedExtension extension = repository.findByName(dto.getName())
-                .orElseThrow(() -> new IllegalArgumentException("Extension not found: " + dto.getName()));
+                .orElseThrow(() -> new IllegalArgumentException("확장자를 찾을 수 없습니다.: " + dto.getName()));
         if (extension.isFixedExtension()) {
-            throw new IllegalArgumentException("Cannot delete fixed extension: " + dto.getName());
+            throw new IllegalArgumentException("해당 확장자를 지울 수 없습니다.: " + dto.getName());
         }
         repository.delete(extension);
     }
@@ -102,12 +82,4 @@ public class BlockedExtensionService {
                 .orElse(false);
     }
 
-//    private BlockedExtensionDTO convertToDTO(BlockedExtension extension) {
-//        return BlockedExtensionDTO.builder()
-//                .id(extension.getId())
-//                .name(extension.getName())
-//                .isFixedExtension(extension.isFixedExtension())
-//                .isChecked(extension.isChecked())
-//                .build();
-//    }
 }
